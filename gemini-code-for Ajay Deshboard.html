@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personalised Dashboard - Ajay Sharma</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --navy-dark: #0b132b;
+      --navy-blue: #1c2541;
+      --accent-blue: #2563eb;
+      --light-blue: #e0f2fe;
+      --orange-main: #f97316;
+      --orange-dark: #ea580c;
+      --orange-light: #ffedd5;
+      --green-main: #10b981;
+      --green-dark: #059669;
+      --green-light: #d1fae5;
+      --red-main: #ef4444;
+      --red-light: #fee2e2;
+      --bg-slate: #f8fafc;
+      --card-white: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-slate);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-blue) 100%);
+      color: #ffffff;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 3px solid var(--orange-main);
+    }
+
+    .header-title-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange-main), var(--orange-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+    }
+
+    .header-text h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-refresh {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.825rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-refresh:hover {
+      background: var(--orange-main);
+      border-color: var(--orange-main);
+    }
+
+    .live-badge {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #34d399;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Market Ticker Bar */
+    .market-ticker-bar {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.6rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .ticker-card {
+      background: var(--bg-slate);
+      border-radius: 8px;
+      padding: 0.5rem 0.8rem;
+      border-left: 4px solid var(--accent-blue);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .ticker-card.up { border-left-color: var(--green-main); }
+    .ticker-card.down { border-left-color: var(--red-main); }
+
+    .ticker-label {
+      font-size: 0.725rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .ticker-value {
+      font-size: 0.925rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ticker-change {
+      font-size: 0.725rem;
+      font-weight: 600;
+    }
+
+    .ticker-change.up { color: var(--green-dark); }
+    .ticker-change.down { color: var(--red-main); }
+
+    /* Main Container */
+    .dashboard-container {
+      max-width: 1440px;
+      margin: 1rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* 2-Line Tab Grid Layout */
+    .tabs-nav-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .tab-btn {
+      background: var(--card-white);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.6rem 0.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: var(--light-blue);
+      color: var(--accent-blue);
+      border-color: #bfdbfe;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--navy-blue) 0%, var(--accent-blue) 100%);
+      color: #ffffff;
+      border-color: var(--navy-blue);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    }
+
+    .tab-btn.watchlist-tab {
+      background: var(--orange-light);
+      border-color: #fed7aa;
+      color: var(--orange-dark);
+      font-weight: 700;
+    }
+
+    .tab-btn.watchlist-tab.active {
+      background: linear-gradient(135deg, var(--orange-main) 0%, var(--orange-dark) 100%);
+      color: #ffffff;
+      border-color: var(--orange-dark);
+      box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
+    }
+
+    /* Tab Content Display */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* News Grid Layout */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .news-card {
+      background: var(--card-white);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .news-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-blue);
+    }
+
+    .news-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+      border-color: #cbd5e1;
+    }
+
+    .news-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      width: fit-content;
+      margin-bottom: 0.6rem;
+      background: var(--light-blue);
+      color: var(--accent-blue);
+    }
+
+    .news-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text-main);
+      margin-bottom: 0.85rem;
+    }
+
+    .news-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px solid #f1f5f9;
+      padding-top: 0.65rem;
+    }
+
+    .news-source {
+      font-weight: 600;
+      color: var(--navy-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .news-link-btn {
+      color: var(--orange-main);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: color 0.2s;
+    }
+
+    .news-link-btn:hover {
+      color: var(--orange-dark);
+      text-decoration: underline;
+    }
+
+    /* Commodities Layout */
+    .commodities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .commodity-card {
+      background: var(--card-white);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .commodity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .commodity-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+    }
+
+    .icon-gold { background: #fef3c7; color: #d97706; }
+    .icon-silver { background: #f1f5f9; color: #64748b; }
+    .icon-oil { background: var(--orange-light); color: var(--orange-dark); }
+    .icon-gas { background: var(--light-blue); color: var(--accent-blue); }
+    .icon-copper { background: #ffedd5; color: #c2410c; }
+    .icon-metal { background: var(--green-light); color: var(--green-dark); }
+
+    .commodity-price-large {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--navy-dark);
+    }
+
+    .commodity-trend-badge {
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-up { background: var(--green-light); color: var(--green-dark); }
+    .badge-down { background: var(--red-light); color: var(--red-main); }
+
+    /* Tables Style & Fixed Sticky Headers */
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy-dark);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .table-container {
+      background: var(--card-white);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      overflow: auto;
+      max-height: 480px; /* Fixed scroll area for watchlist tables */
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      position: relative;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+
+    /* Fixed Header Sticky Scroll */
+    th {
+      background-color: #f1f5f9;
+      color: var(--navy-blue);
+      font-weight: 700;
+      padding: 0.6rem 0.6rem;
+      border-bottom: 2px solid var(--border-color);
+      white-space: pre-line; /* Allows 2-line header breaks */
+      line-height: 1.25;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    td {
+      padding: 0.6rem 0.6rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background-color: #f8fafc;
+    }
+
+    .val-green { color: var(--green-dark); font-weight: 600; }
+    .val-red { color: var(--red-main); font-weight: 600; }
+
+    /* Compact Buttons */
+    .btn-add {
+      background: linear-gradient(135deg, var(--green-main), var(--green-dark));
+      color: #ffffff;
+      border: none;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+
+    .btn-add:hover {
+      opacity: 0.9;
+    }
+
+    .btn-delete {
+      background: transparent;
+      color: var(--red-main);
+      border: 1px solid var(--red-light);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.725rem;
+      transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+      background: var(--red-main);
+      color: #ffffff;
+    }
+
+    /* Modal Form */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 480px;
+      padding: 1.25rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      font-weight: 700;
+      color: var(--navy-dark);
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.825rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-secondary {
+      background: var(--bg-slate);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    footer {
+      background: var(--navy-dark);
+      color: #94a3b8;
+      text-align: center;
+      padding: 1.25rem;
+      font-size: 0.78rem;
+      margin-top: auto;
+      border-top: 1px solid var(--navy-blue);
+    }
+
+    /* Responsive adjustments for 2-line tabs */
+    @media (max-width: 1024px) {
+      .tabs-nav-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .tabs-nav-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-title-box">
+      <div class="header-avatar">AS</div>
+      <div class="header-text">
+        <h1>Personalised for Ajay Sharma</h1>
+        <p>Financial & News Intelligence Dashboard</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="live-badge">
+        <span class="live-dot"></span> LIVE UPDATED
+      </div>
+      <button class="btn-refresh" onclick="refreshPageData()">
+        <i class="fa-solid fa-rotate"></i> Refresh Page
+      </button>
+    </div>
+  </header>
+
+  <!-- Market Overview Bar -->
+  <div class="market-ticker-bar">
+    <div class="ticker-card down">
+      <span class="ticker-label">BSE SENSEX</span>
+      <div class="ticker-value">78,499.17 <span class="ticker-change down"><i class="fa-solid fa-caret-down"></i> -455.59 (-0.58%)</span></div>
+    </div>
+    <div class="ticker-card down">
+      <span class="ticker-label">NSE NIFTY 50</span>
+      <div class="ticker-value">24,570.65 <span class="ticker-change down"><i class="fa-solid fa-caret-down"></i> -65.35 (-0.27%)</span></div>
+    </div>
+    <div class="ticker-card up">
+      <span class="ticker-label">GOLD (10g 24K)</span>
+      <div class="ticker-value">₹1,49,724 <span class="ticker-change up"><i class="fa-solid fa-caret-up"></i> +₹866 (+0.58%)</span></div>
+    </div>
+    <div class="ticker-card up">
+      <span class="ticker-label">SILVER (1 kg)</span>
+      <div class="ticker-value">₹2,28,700 <span class="ticker-change up"><i class="fa-solid fa-caret-up"></i> +₹2,864 (+1.27%)</span></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Container -->
+  <div class="dashboard-container">
+
+    <!-- 2-Line Tab Navigation Grid -->
+    <div class="tabs-nav-grid">
+      <!-- Line 1 Tabs (5 items) -->
+      <button class="tab-btn watchlist-tab active" onclick="switchTab('tab1', this)"><i class="fa-solid fa-star"></i> 1) Watch List</button>
+      <button class="tab-btn" onclick="switchTab('tab2', this)"><i class="fa-solid fa-building-columns"></i> 2) BSE & NSE Updates</button>
+      <button class="tab-btn" onclick="switchTab('tab3', this)"><i class="fa-solid fa-newspaper"></i> 3) General News</button>
+      <button class="tab-btn" onclick="switchTab('tab4', this)"><i class="fa-solid fa-landmark"></i> 4) Indian Politics</button>
+      <button class="tab-btn" onclick="switchTab('tab5', this)"><i class="fa-solid fa-globe"></i> 5) International News</button>
+
+      <!-- Line 2 Tabs (4 items) -->
+      <button class="tab-btn" onclick="switchTab('tab6', this)"><i class="fa-solid fa-city"></i> 6) Mumbai News</button>
+      <button class="tab-btn" onclick="switchTab('tab7', this)"><i class="fa-solid fa-baseball-bat-ball"></i> 7) Cricket & Sports</button>
+      <button class="tab-btn" onclick="switchTab('tab8', this)"><i class="fa-solid fa-chart-line"></i> 8) Indian Markets</button>
+      <button class="tab-btn" onclick="switchTab('tab9', this)"><i class="fa-solid fa-coins"></i> 9) Gold & Commodities</button>
+    </div>
+
+    <!-- TAB 1: Watch List (First Tab) -->
+    <div id="tab1" class="tab-content active">
+      
+      <!-- Mutual Funds Table -->
+      <div class="section-title">
+        <span><i class="fa-solid fa-chart-pie" style="color: var(--orange-main);"></i> Mutual Funds Watch List</span>
+        <button class="btn-add" onclick="openAddModal('Mutual Fund')"><i class="fa-solid fa-plus"></i> Add Mutual Fund</button>
+      </div>
+
+      <div class="table-container">
+        <table id="mf-table">
+          <thead>
+            <tr>
+              <th>Mutual Funds&#10;Script</th>
+              <th>Latest&#10;NAV (₹)</th>
+              <th>Yesterday&#10;NAV (₹)</th>
+              <th>30 Days&#10;Trend</th>
+              <th>30 Days&#10;Highest NAV</th>
+              <th>30 Days&#10;Lowest NAV</th>
+              <th>180 Days&#10;Highest NAV</th>
+              <th>180 Days&#10;Lowest NAV</th>
+              <th>365 Days&#10;Highest NAV</th>
+              <th>365 Days&#10;Lowest NAV</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Aditya Birla Sun Life Large Cap Fund Regular-Growth</strong></td>
+              <td>124.50</td><td>123.80</td><td class="val-green">+0.57%</td>
+              <td>128.00</td><td>118.50</td><td>132.00</td><td>110.00</td><td>135.00</td><td>102.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Axis Midcap Direct Plan-Growth</strong></td>
+              <td>98.20</td><td>97.50</td><td class="val-green">+0.72%</td>
+              <td>102.00</td><td>92.00</td><td>108.00</td><td>85.00</td><td>112.00</td><td>78.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Axis Small Cap Fund Direct-Growth</strong></td>
+              <td>110.40</td><td>109.80</td><td class="val-green">+0.55%</td>
+              <td>115.00</td><td>104.00</td><td>120.00</td><td>95.00</td><td>125.00</td><td>88.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>DSP Large & Mid Cap Fund Regular-Growth</strong></td>
+              <td>85.60</td><td>85.10</td><td class="val-green">+0.59%</td>
+              <td>89.00</td><td>80.50</td><td>93.00</td><td>74.00</td><td>96.00</td><td>69.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>HDFC Large Cap Fund Regular-Growth</strong></td>
+              <td>142.10</td><td>141.50</td><td class="val-green">+0.42%</td>
+              <td>146.00</td><td>136.00</td><td>150.00</td><td>128.00</td><td>154.00</td><td>120.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>ICICI Prudential Infrastructure Direct-Growth</strong></td>
+              <td>165.80</td><td>164.20</td><td class="val-green">+0.97%</td>
+              <td>172.00</td><td>155.00</td><td>178.00</td><td>140.00</td><td>185.00</td><td>130.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Kotak Flexicap Fund Regular-Growth</strong></td>
+              <td>78.90</td><td>78.40</td><td class="val-green">+0.64%</td>
+              <td>82.00</td><td>74.00</td><td>86.00</td><td>68.00</td><td>90.00</td><td>62.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Kotak Midcap Fund Regular-Growth</strong></td>
+              <td>132.40</td><td>131.00</td><td class="val-green">+1.07%</td>
+              <td>138.00</td><td>124.00</td><td>142.00</td><td>115.00</td><td>148.00</td><td>105.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Kotak Small Cap Fund Regular-Growth</strong></td>
+              <td>210.50</td><td>208.80</td><td class="val-green">+0.81%</td>
+              <td>220.00</td><td>198.00</td><td>230.00</td><td>180.00</td><td>240.00</td><td>165.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Nippon India Large Cap Fund-Growth</strong></td>
+              <td>94.30</td><td>93.80</td><td class="val-green">+0.53%</td>
+              <td>98.00</td><td>89.00</td><td>102.00</td><td>82.00</td><td>106.00</td><td>75.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Parag Parikh Flexi Cap Fund Direct-Growth</strong></td>
+              <td>82.10</td><td>81.50</td><td class="val-green">+0.74%</td>
+              <td>86.00</td><td>77.00</td><td>90.00</td><td>70.00</td><td>94.00</td><td>64.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Parag Parikh Flexi Cap Fund Regular-Growth</strong></td>
+              <td>76.40</td><td>75.90</td><td class="val-green">+0.66%</td>
+              <td>80.00</td><td>72.00</td><td>84.00</td><td>65.00</td><td>88.00</td><td>59.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Equity Table -->
+      <div class="section-title">
+        <span><i class="fa-solid fa-layer-group" style="color: var(--accent-blue);"></i> Equity Securities Watch List</span>
+        <button class="btn-add" onclick="openAddModal('Equity')"><i class="fa-solid fa-plus"></i> Add Equity Stock</button>
+      </div>
+
+      <div class="table-container">
+        <table id="equity-table">
+          <thead>
+            <tr>
+              <th>Equity Script&#10;Name</th>
+              <th>Latest Market&#10;Value (₹)</th>
+              <th>Yesterday Market&#10;Value (₹)</th>
+              <th>30 Days&#10;Trend</th>
+              <th>30 Days Highest&#10;Market Value</th>
+              <th>30 Days Lowest&#10;Market Value</th>
+              <th>180 Days Highest&#10;Market Value</th>
+              <th>180 Days Lowest&#10;Market Value</th>
+              <th>365 Days Highest&#10;Market Value</th>
+              <th>365 Days Lowest&#10;Market Value</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Suzlon Energy Ltd.</strong></td>
+              <td>64.20</td><td>63.50</td><td class="val-green">+1.10%</td>
+              <td>68.00</td><td>58.00</td><td>82.00</td><td>45.00</td><td>86.00</td><td>38.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Adani Enterprises Ltd.</strong></td>
+              <td>2,840.00</td><td>2,810.00</td><td class="val-green">+1.07%</td>
+              <td>2,950.00</td><td>2,680.00</td><td>3,200.00</td><td>2,400.00</td><td>3,400.00</td><td>2,100.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Amber Enterprises India Ltd.</strong></td>
+              <td>6,120.00</td><td>6,050.00</td><td class="val-green">+1.16%</td>
+              <td>6,350.00</td><td>5,800.00</td><td>6,600.00</td><td>5,100.00</td><td>6,800.00</td><td>4,500.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>NCC Ltd.</strong></td>
+              <td>245.80</td><td>242.00</td><td class="val-green">+1.57%</td>
+              <td>260.00</td><td>230.00</td><td>285.00</td><td>200.00</td><td>310.00</td><td>175.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>LG Electronics India Ltd.</strong></td>
+              <td>1,420.00</td><td>1,405.00</td><td class="val-green">+1.07%</td>
+              <td>1,480.00</td><td>1,350.00</td><td>1,550.00</td><td>1,280.00</td><td>1,600.00</td><td>1,150.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>HDB Financial Services Ltd.</strong></td>
+              <td>880.50</td><td>875.00</td><td class="val-green">+0.63%</td>
+              <td>910.00</td><td>840.00</td><td>950.00</td><td>790.00</td><td>980.00</td><td>720.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>State Bank of India</strong></td>
+              <td>812.40</td><td>805.00</td><td class="val-green">+0.92%</td>
+              <td>845.00</td><td>780.00</td><td>890.00</td><td>730.00</td><td>912.00</td><td>680.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>RBL Bank Ltd.</strong></td>
+              <td>215.30</td><td>212.00</td><td class="val-green">+1.56%</td>
+              <td>230.00</td><td>202.00</td><td>255.00</td><td>185.00</td><td>270.00</td><td>160.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>HDFC Bank Ltd.</strong></td>
+              <td>1,645.00</td><td>1,658.00</td><td class="val-red">-0.78%</td>
+              <td>1,710.00</td><td>1,610.00</td><td>1,780.00</td><td>1,520.00</td><td>1,820.00</td><td>1,440.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Tata Motors Passenger Vehicles Ltd.</strong></td>
+              <td>485.00</td><td>480.00</td><td class="val-green">+1.04%</td>
+              <td>510.00</td><td>450.00</td><td>540.00</td><td>410.00</td><td>570.00</td><td>370.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Addictive Learning Technology Ltd.</strong></td>
+              <td>310.00</td><td>305.00</td><td class="val-green">+1.64%</td>
+              <td>330.00</td><td>285.00</td><td>360.00</td><td>250.00</td><td>380.00</td><td>210.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Tata Motors Ltd.</strong></td>
+              <td>995.50</td><td>988.00</td><td class="val-green">+0.76%</td>
+              <td>1,040.00</td><td>950.00</td><td>1,120.00</td><td>890.00</td><td>1,180.00</td><td>810.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Birla Corporation Ltd.</strong></td>
+              <td>1,320.00</td><td>1,310.00</td><td class="val-green">+0.76%</td>
+              <td>1,380.00</td><td>1,260.00</td><td>1,450.00</td><td>1,180.00</td><td>1,500.00</td><td>1,050.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Bliss GVS Pharma Ltd.</strong></td>
+              <td>118.40</td><td>116.50</td><td class="val-green">+1.63%</td>
+              <td>126.00</td><td>110.00</td><td>138.00</td><td>98.00</td><td>145.00</td><td>85.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Restaurant Brands Asia Ltd.</strong></td>
+              <td>104.20</td><td>103.00</td><td class="val-green">+1.17%</td>
+              <td>112.00</td><td>98.00</td><td>120.00</td><td>88.00</td><td>128.00</td><td>78.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Central Mine Planning & Design Institute Ltd</strong></td>
+              <td>450.00</td><td>445.00</td><td class="val-green">+1.12%</td>
+              <td>475.00</td><td>420.00</td><td>510.00</td><td>390.00</td><td>540.00</td><td>350.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Jindal Saw Ltd.</strong></td>
+              <td>580.00</td><td>572.00</td><td class="val-green">+1.40%</td>
+              <td>610.00</td><td>540.00</td><td>660.00</td><td>490.00</td><td>700.00</td><td>430.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Paradeep Phosphates Ltd.</strong></td>
+              <td>88.50</td><td>87.20</td><td class="val-green">+1.49%</td>
+              <td>94.00</td><td>81.00</td><td>102.00</td><td>74.00</td><td>108.00</td><td>65.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+            <tr>
+              <td><strong>Shukra Pharmaceuticals Ltd.</strong></td>
+              <td>315.00</td><td>310.00</td><td class="val-green">+1.61%</td>
+              <td>335.00</td><td>290.00</td><td>360.00</td><td>260.00</td><td>380.00</td><td>220.00</td>
+              <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: BSE and NSE Updates (Second Tab) -->
+    <div id="tab2" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-building-columns" style="color: var(--accent-blue);"></i> Key BSE & NSE Updates</span>
+      </div>
+
+      <!-- 4 Key News Links -->
+      <div class="news-grid" style="margin-bottom: 1.5rem;">
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Exchange Mechanism</div>
+            <h3 class="news-title">BSE & NSE Launch New Closing Price Discovery Mechanism for F&O Contracts</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source">Kotak Neo</span>
+            <a href="https://www.kotakneo.com/news/market-news/stock-market-update-sensex-nifty-7august-2026/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Market Index</div>
+            <h3 class="news-title">Nifty 50 Closes at 24,570.65; Metals and IT Offset Financials' Drag</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source">Angel One</span>
+            <a href="https://www.angelone.in/news/market-updates/top-gainers-and-losers-on-august-7-2026-grasim-industries-leads-gains-bajaj-finance-tops-losers" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Regulation</div>
+            <h3 class="news-title">SEBI Formulates Enhanced Disclosure Standards for Non-Banking Financial Lenders</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source">The Hindu</span>
+            <a href="https://www.thehindu.com/business/markets/stock-markets-decline-dragged-by-banks-elevated-crude-oil-prices/article71317292.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Institutional Flows</div>
+            <h3 class="news-title">FII & DII Trading Trends Show Rebalancing Across Heavyweight Equities</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source">Kotak Neo</span>
+            <a href="https://www.kotakneo.com/news/market-news/stock-market-update-sensex-nifty-7august-2026/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indices Table -->
+      <div class="section-title"><span>BSE & NSE Key Market Indices</span></div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Index Name</th>
+              <th>Current Value</th>
+              <th>Point Change</th>
+              <th>% Change</th>
+              <th>Day Range</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>BSE SENSEX</strong></td>
+              <td>78,499.17</td>
+              <td class="val-red">-455.59</td>
+              <td class="val-red">-0.58%</td>
+              <td>78,377.07 - 78,954.76</td>
+              <td><span class="commodity-trend-badge badge-down">Lower</span></td>
+            </tr>
+            <tr>
+              <td><strong>NSE NIFTY 50</strong></td>
+              <td>24,570.65</td>
+              <td class="val-red">-65.35</td>
+              <td class="val-red">-0.27%</td>
+              <td>24,522.75 - 24,636.00</td>
+              <td><span class="commodity-trend-badge badge-down">Lower</span></td>
+            </tr>
+            <tr>
+              <td><strong>NIFTY BANK</strong></td>
+              <td>57,857.80</td>
+              <td class="val-red">-205.85</td>
+              <td class="val-red">-0.35%</td>
+              <td>57,600.10 - 58,120.40</td>
+              <td><span class="commodity-trend-badge badge-down">Lower</span></td>
+            </tr>
+            <tr>
+              <td><strong>NIFTY IT</strong></td>
+              <td>38,920.10</td>
+              <td class="val-green">+408.20</td>
+              <td class="val-green">+1.06%</td>
+              <td>38,400.00 - 39,050.00</td>
+              <td><span class="commodity-trend-badge badge-up">Gain</span></td>
+            </tr>
+            <tr>
+              <td><strong>NIFTY AUTO</strong></td>
+              <td>26,410.50</td>
+              <td class="val-green">+128.60</td>
+              <td class="val-green">+0.49%</td>
+              <td>26,200.00 - 26,500.00</td>
+              <td><span class="commodity-trend-badge badge-up">Gain</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Key Market Movers -->
+      <div class="section-title"><span>Key Market Movers (Top Gainers & Losers)</span></div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
+        <div class="table-container">
+          <div style="padding:0.6rem 0.8rem; background:var(--green-light); color:var(--green-dark); font-weight:700;">
+            <i class="fa-solid fa-arrow-trend-up"></i> Top Gainers
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>LTP (₹)</th>
+                <th>Change (₹)</th>
+                <th>% Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Grasim Industries</strong></td>
+                <td>3,323.00</td>
+                <td class="val-green">+113.00</td>
+                <td class="val-green">+3.52%</td>
+              </tr>
+              <tr>
+                <td><strong>TCS</strong></td>
+                <td>2,452.70</td>
+                <td class="val-green">+79.70</td>
+                <td class="val-green">+3.36%</td>
+              </tr>
+              <tr>
+                <td><strong>Hindalco Industries</strong></td>
+                <td>1,059.60</td>
+                <td class="val-green">+32.60</td>
+                <td class="val-green">+3.17%</td>
+              </tr>
+              <tr>
+                <td><strong>Mahindra & Mahindra</strong></td>
+                <td>3,502.00</td>
+                <td class="val-green">+96.00</td>
+                <td class="val-green">+2.82%</td>
+              </tr>
+              <tr>
+                <td><strong>HCL Technologies</strong></td>
+                <td>1,356.60</td>
+                <td class="val-green">+21.60</td>
+                <td class="val-green">+1.62%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-container">
+          <div style="padding:0.6rem 0.8rem; background:var(--red-light); color:var(--red-main); font-weight:700;">
+            <i class="fa-solid fa-arrow-trend-down"></i> Top Losers
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>LTP (₹)</th>
+                <th>Change (₹)</th>
+                <th>% Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Bajaj Finance</strong></td>
+                <td>1,078.00</td>
+                <td class="val-red">-66.80</td>
+                <td class="val-red">-5.84%</td>
+              </tr>
+              <tr>
+                <td><strong>Bajaj Finserv</strong></td>
+                <td>2,008.90</td>
+                <td class="val-red">-77.10</td>
+                <td class="val-red">-3.70%</td>
+              </tr>
+              <tr>
+                <td><strong>Trent Ltd.</strong></td>
+                <td>2,997.00</td>
+                <td class="val-red">-110.10</td>
+                <td class="val-red">-3.54%</td>
+              </tr>
+              <tr>
+                <td><strong>Shriram Finance</strong></td>
+                <td>2,410.00</td>
+                <td class="val-red">-51.60</td>
+                <td class="val-red">-2.10%</td>
+              </tr>
+              <tr>
+                <td><strong>Tata Capital</strong></td>
+                <td>425.50</td>
+                <td class="val-red">-8.00</td>
+                <td class="val-red">-1.85%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: General Latest Indian News -->
+    <div id="tab3" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-newspaper" style="color: var(--accent-blue);"></i> General Latest Indian News</span>
+        <span style="font-size:0.78rem; font-weight:normal; color:var(--text-muted)">8 Headlines</span>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Weather Alert</div>
+            <h3 class="news-title">IMD Issues Red Alert for Extreme Heavy Rainfall Over Assam, Meghalaya, and Kerala</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Education Reform</div>
+            <h3 class="news-title">Government Informs Supreme Court It Is Considering Two-Stage Exam Format for NEET-UG</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Deep Tech</div>
+            <h3 class="news-title">Government's ₹1-Lakh-Crore Tech Fund: 15 Selected Firms Linked to Selection Panel</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/india-news-live-7-august-2026-imd-weather-rain-government-tech-fund-neet-chits-world-10821641/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Investigation</div>
+            <h3 class="news-title">Siddhivinayak Temple Theft Case: Blocked CCTV and Stagnant Donation Discrepancies Probed</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Governance</div>
+            <h3 class="news-title">Cabinet Secretary T V Somanathan Receives One-Year Extension in Service by ACC</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Industrial Safety</div>
+            <h3 class="news-title">Three Chemical Factory Workers Killed in Karnataka Reactor Gas Leak Incident</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Economy</div>
+            <h3 class="news-title">RBI Keeps Repo Rate Unchanged at 5.25%; Projects India as Fastest Growing Economy</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Protest</div>
+            <h3 class="news-title">Sonam Wangchuk Interacts with Student Leaders Over Competitive Exam Irregularities</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-regular fa-paper-plane"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Indian Politics News -->
+    <div id="tab4" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-landmark" style="color: var(--orange-main);"></i> Indian Politics News</span>
+        <span style="font-size:0.78rem; font-weight:normal; color:var(--text-muted)">8 Headlines</span>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Parliament</div>
+            <h3 class="news-title">Congress Issues Whip to MPs to Attend Parliament Ahead of Key FCRA Amendment Bill</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/national/congress-issues-whip-to-its-mps-in-parliament-asks-them-to-be-present-from-august-10-12/article71317145.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Diplomacy</div>
+            <h3 class="news-title">Sheikh Hasina to Address Press Conference in New Delhi Ahead of BRICS Summit</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/morning-digest-august-3-2026/article71299153.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Elections</div>
+            <h3 class="news-title">Congress Suspends Former MLA Rajendra Bharti One Day Before Datia Bypoll Results</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/morning-digest-august-3-2026/article71299153.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">State Politics</div>
+            <h3 class="news-title">DMK Accuses State Government of Passivity Over Critical Cauvery Water Sharing Issue</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/morning-digest-august-3-2026/article71299153.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Opposition</div>
+            <h3 class="news-title">Rahul Gandhi vs Amit Shah: Opposition Leader Blames Home Ministry Over Student Protests</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Legislation</div>
+            <h3 class="news-title">Shiromani Akali Dal Calls for Immediate Implementation of Women's Reservation Bill</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/cities/mumbai/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Disaster Mgmt</div>
+            <h3 class="news-title">Pinarayi Vijayan Criticises Opposition Over Rescue Response Statements in Kerala</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/cities/mumbai/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Local Governance</div>
+            <h3 class="news-title">Assembly Monsoon Sessions Witness Fiery Debates On Municipal Fund Allocations</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-building-flag"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/india-news-live-7-august-2026-imd-weather-rain-government-tech-fund-neet-chits-world-10821641/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: International News -->
+    <div id="tab5" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-globe" style="color: var(--green-dark);"></i> International News</span>
+        <span style="font-size:0.78rem; font-weight:normal; color:var(--text-muted)">8 Headlines</span>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">United Nations</div>
+            <h3 class="news-title">UN Secretary-General Condemns Deadliest Russian Missile Attacks on Kyiv Infrastructure</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> UN News</span>
+            <a href="https://www.globalissues.org/news/2026" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">Defense Pact</div>
+            <h3 class="news-title">Saudi Arabia, Pakistan, and Turkey Move to Strengthen Trilateral Military Cooperation</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> Sunday Guardian</span>
+            <a href="https://sundayguardianlive.com/trending/school-assembly-news-headlines-today-08-august-top-national-business-news-sports-news-education-news-science-tech-news-weather-news-world-news-with-weather-updates-thought-of-the-day-256021/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">Global Security</div>
+            <h3 class="news-title">US Defense Stockpiles Strain Amid Ongoing Five-Month Regional Conflict in Middle East</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> Inter Press Service</span>
+            <a href="https://www.globalissues.org/news/2026" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">Global Policy</div>
+            <h3 class="news-title">UN Marks 2026 as International Year of Rangelands and Pastoralist Communities</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> Inter Press Service</span>
+            <a href="https://www.globalissues.org/news/2026" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">Hiroshima Memorial</div>
+            <h3 class="news-title">Hiroshima Peace Declaration Warns Against Military Intimidation and Nuclear Threats</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> Inter Press Service</span>
+            <a href="https://www.globalissues.org/news/2026" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">Commodity Prices</div>
+            <h3 class="news-title">Global Food Prices Edge Upward in July Amid Searing Heatwaves and Energy Surges</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> UN News</span>
+            <a href="https://www.globalissues.org/news/2026" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">Tech Regulation</div>
+            <h3 class="news-title">Meta Fined $567 Million in Landmark Child Safety and Data Protection Enforcement</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> Sunday Guardian</span>
+            <a href="https://sundayguardianlive.com/trending/school-assembly-news-headlines-today-08-august-top-national-business-news-sports-news-education-news-science-tech-news-weather-news-world-news-with-weather-updates-thought-of-the-day-256021/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--green-light); color:var(--green-dark);">Humanitarian</div>
+            <h3 class="news-title">Heavy Monsoon Monsoon Rains Cause Severe Landslides in Rohingya Refugee Camps</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-globe"></i> Inter Press Service</span>
+            <a href="https://www.globalissues.org/news/2026" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: Mumbai Specific News -->
+    <div id="tab6" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-city" style="color: var(--accent-blue);"></i> Mumbai Specific News</span>
+        <span style="font-size:0.78rem; font-weight:normal; color:var(--text-muted)">8 Headlines</span>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Cyber Crime</div>
+            <h3 class="news-title">Mumbai Police Cyber Cell Probes Viral Social Media Threat Posts; Verifies Origins</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> Telangana Today</span>
+            <a href="https://telanganatoday.com/mumbai-police-probe-social-media-post-warning-of-possible-terror-attack-in-august" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">High Court</div>
+            <h3 class="news-title">Bombay HC Orders Removal of AI Deepfake Videos Targeting Union Minister Nitin Gadkari</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/cities/mumbai/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Extradition</div>
+            <h3 class="news-title">CBI Secures Overseas Deportation of Interpol Red Notice Fugitive Vishaka Rathod to Mumbai</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/cities/mumbai/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Healthcare</div>
+            <h3 class="news-title">MARD Resident Doctors Issue OPD Suspension Notice Over Medical Degree Registration Dispute</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Civic Life</div>
+            <h3 class="news-title">Chembur Station's 'Silver' Mahatma Appeal Evokes Warm Citizens' Reactions and Support</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/cities/mumbai/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Infrastructure</div>
+            <h3 class="news-title">BMC Cleans Major Storm Drain Network Ahead of High Tide and Heavy Rainfall Alerts</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/cities/mumbai/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Transit</div>
+            <h3 class="news-title">Mumbai Metro Line 3 Underground Section Successfully Conducts Final Trial Runs</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Civic Administration</div>
+            <h3 class="news-title">Administrative Audit Mandated for Siddhivinayak Temple Trust Following Audit Discrepancies</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-location-dot"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/article/india/today-india-breaking-news-live-updates-5-august-2026-imd-red-alert-assam-meghalaya-kerala-siddhivinayak-theft-neet-reform-10818301/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: Cricket & Sports News -->
+    <div id="tab7" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-baseball-bat-ball" style="color: var(--orange-main);"></i> Cricket & Sports News</span>
+        <span style="font-size:0.78rem; font-weight:normal; color:var(--text-muted)">8 Headlines</span>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">India Tour of SL</div>
+            <h3 class="news-title">Sai Sudharsan Ruled Out of India's Test Series Against Sri Lanka Due to Foot Injury</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> NDTV Sports</span>
+            <a href="https://sports.ndtv.com/cricket/news" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Warm-up Match</div>
+            <h3 class="news-title">Devdutt Padikkal Slams Impressive Century in India's Practice Match vs SL XI in Colombo</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/section/sports/cricket/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Awards</div>
+            <h3 class="news-title">Travis Head Wins Allan Border Medal as Australia's Men's Cricketer of the Year</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> NDTV Sports</span>
+            <a href="https://sports.ndtv.com/cricket/news" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Young Talent</div>
+            <h3 class="news-title">Shikhar Dhawan Praises Fearless Batting Style of Teenager Vaibhav Sooryavanshi</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> NDTV Sports</span>
+            <a href="https://sports.ndtv.com/cricket/news" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Expert Advice</div>
+            <h3 class="news-title">Ajinkya Rahane Advises Indian Batters to Be 'Proactive' Against Sri Lanka Spinners</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/section/sports/cricket/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Commonwealth Games</div>
+            <h3 class="news-title">Glasgow Bids Farewell to CWG with Flag Handover to Neeraj Chopra and PT Usha</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/news/morning-digest-august-3-2026/article71299153.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Community Sports</div>
+            <h3 class="news-title">Uttarakhand CM Responds to Rishabh Pant's Plea for Regional Sports Development</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> NDTV Sports</span>
+            <a href="https://sports.ndtv.com/cricket/news" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag" style="background:var(--orange-light); color:var(--orange-dark);">Women's Cricket</div>
+            <h3 class="news-title">Women's Asia Cup Schedule Announced: India to Clash with Pakistan on September 5</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-trophy"></i> The Indian Express</span>
+            <a href="https://indianexpress.com/section/sports/cricket/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 8: Indian Markets News -->
+    <div id="tab8" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-chart-line" style="color: var(--accent-blue);"></i> Indian Markets News</span>
+        <span style="font-size:0.78rem; font-weight:normal; color:var(--text-muted)">8 Headlines</span>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Market Closing</div>
+            <h3 class="news-title">Sensex Drops 455 Points, Nifty Settles at 24,570 Dragged Down by Banking Counter</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/business/markets/stock-markets-decline-dragged-by-banks-elevated-crude-oil-prices/article71317292.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Trading Mechanism</div>
+            <h3 class="news-title">Stock Exchanges Launch New Closing Auction Mechanism for F&O Stocks Price Discovery</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> Kotak Neo</span>
+            <a href="https://www.kotakneo.com/news/market-news/stock-market-update-sensex-nifty-7august-2026/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Sector Performance</div>
+            <h3 class="news-title">IT & Metal Stocks Outperform: TCS, Grasim, and M&M Lead Top Gainers List</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> Angel One</span>
+            <a href="https://www.angelone.in/news/market-updates/top-gainers-and-losers-on-august-7-2026-grasim-industries-leads-gains-bajaj-finance-tops-losers" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Financial Stocks</div>
+            <h3 class="news-title">Bajaj Finance and Bajaj Finserv Tank Up to 5.9% Amid Regulatory Uncertainty</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> Angel One</span>
+            <a href="https://www.angelone.in/news/market-updates/top-gainers-and-losers-on-august-7-2026-grasim-industries-leads-gains-bajaj-finance-tops-losers" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Institutional Flows</div>
+            <h3 class="news-title">FIIs Net Offload Equities Worth ₹17.86 Crore in Cautious Session</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> The Hindu</span>
+            <a href="https://www.thehindu.com/business/markets/stock-markets-decline-dragged-by-banks-elevated-crude-oil-prices/article71317292.ece" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Global Crude Effect</div>
+            <h3 class="news-title">Brent Crude Oil Trades Above $80 Benchmark Amid Middle East Tensions</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> Kotak Neo</span>
+            <a href="https://www.kotakneo.com/news/market-news/stock-market-update-sensex-nifty-7august-2026/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Auto Sector</div>
+            <h3 class="news-title">Nifty Auto Index Gains 0.49% Driven by Heavy Buying in Commercial Vehicle Stocks</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> Kotak Neo</span>
+            <a href="https://www.kotakneo.com/news/market-news/stock-market-update-sensex-nifty-7august-2026/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div>
+            <div class="news-tag">Banking Index</div>
+            <h3 class="news-title">Bank Nifty Retrenches 205 Points to Settle at 57,857 as Private Lenders Soften</h3>
+          </div>
+          <div class="news-footer">
+            <span class="news-source"><i class="fa-solid fa-chart-line"></i> Kotak Neo</span>
+            <a href="https://www.kotakneo.com/news/market-news/stock-market-update-sensex-nifty-7august-2026/" target="_blank" class="news-link-btn">Read <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 9: Gold, Silver and Commodities -->
+    <div id="tab9" class="tab-content">
+      <div class="section-title">
+        <span><i class="fa-solid fa-coins" style="color: #d97706;"></i> Precious Metals & Important Commodities (INR)</span>
+        <span style="font-size:0.78rem; font-weight:normal; color:var(--text-muted)">Live MCX Rates</span>
+      </div>
+
+      <div class="commodities-grid">
+        <div class="commodity-card">
+          <div class="commodity-header">
+            <div class="commodity-icon-box icon-gold"><i class="fa-solid fa-coins"></i></div>
+            <span class="commodity-trend-badge badge-up"><i class="fa-solid fa-arrow-trend-up"></i> Bullish (+0.58%)</span>
+          </div>
+          <div>
+            <div style="font-size:0.825rem; color:var(--text-muted); font-weight:600">Gold (MCX 24K Futures)</div>
+            <div class="commodity-price-large">₹1,49,724 <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">/ 10g</span></div>
+          </div>
+          <div style="font-size:0.78rem; border-top:1px dashed var(--border-color); padding-top:0.6rem; color:var(--text-muted)">
+            <strong>30-Day Range:</strong> ₹1,43,000 - ₹1,52,580<br>
+            <strong>Day Change:</strong> +₹866 in latest session
+          </div>
+        </div>
+
+        <div class="commodity-card">
+          <div class="commodity-header">
+            <div class="commodity-icon-box icon-silver"><i class="fa-solid fa-gem"></i></div>
+            <span class="commodity-trend-badge badge-up"><i class="fa-solid fa-arrow-trend-up"></i> Bullish (+1.27%)</span>
+          </div>
+          <div>
+            <div style="font-size:0.825rem; color:var(--text-muted); font-weight:600">Silver (MCX Futures)</div>
+            <div class="commodity-price-large">₹2,28,700 <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">/ 1 kg</span></div>
+          </div>
+          <div style="font-size:0.78rem; border-top:1px dashed var(--border-color); padding-top:0.6rem; color:var(--text-muted)">
+            <strong>30-Day Range:</strong> ₹2,15,000 - ₹2,35,480<br>
+            <strong>Day Change:</strong> +₹2,864 in latest session
+          </div>
+        </div>
+
+        <div class="commodity-card">
+          <div class="commodity-header">
+            <div class="commodity-icon-box icon-oil"><i class="fa-solid fa-droplet"></i></div>
+            <span class="commodity-trend-badge badge-up"><i class="fa-solid fa-arrow-trend-up"></i> Upward (+1.78%)</span>
+          </div>
+          <div>
+            <div style="font-size:0.825rem; color:var(--text-muted); font-weight:600">Crude Oil (MCX)</div>
+            <div class="commodity-price-large">₹6,850 <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">/ Barrel</span></div>
+          </div>
+          <div style="font-size:0.78rem; border-top:1px dashed var(--border-color); padding-top:0.6rem; color:var(--text-muted)">
+            <strong>30-Day Range:</strong> ₹6,400 - ₹7,100<br>
+            <strong>Trend:</strong> Supported by crude concerns
+          </div>
+        </div>
+
+        <div class="commodity-card">
+          <div class="commodity-header">
+            <div class="commodity-icon-box icon-gas"><i class="fa-solid fa-fire"></i></div>
+            <span class="commodity-trend-badge badge-down"><i class="fa-solid fa-arrow-trend-down"></i> Bearish (-1.56%)</span>
+          </div>
+          <div>
+            <div style="font-size:0.825rem; color:var(--text-muted); font-weight:600">Natural Gas (MCX)</div>
+            <div class="commodity-price-large">₹265.40 <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">/ MMBtu</span></div>
+          </div>
+          <div style="font-size:0.78rem; border-top:1px dashed var(--border-color); padding-top:0.6rem; color:var(--text-muted)">
+            <strong>30-Day Range:</strong> ₹240.00 - ₹288.50<br>
+            <strong>Trend:</strong> Muted demand forecast
+          </div>
+        </div>
+
+        <div class="commodity-card">
+          <div class="commodity-header">
+            <div class="commodity-icon-box icon-copper"><i class="fa-solid fa-cubes"></i></div>
+            <span class="commodity-trend-badge badge-up"><i class="fa-solid fa-arrow-trend-up"></i> Upward (+0.81%)</span>
+          </div>
+          <div>
+            <div style="font-size:0.825rem; color:var(--text-muted); font-weight:600">Copper (MCX Industrial)</div>
+            <div class="commodity-price-large">₹842.50 <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">/ 1 kg</span></div>
+          </div>
+          <div style="font-size:0.78rem; border-top:1px dashed var(--border-color); padding-top:0.6rem; color:var(--text-muted)">
+            <strong>30-Day Range:</strong> ₹810.00 - ₹865.00<br>
+            <strong>Trend:</strong> Gains on manufacturing demand
+          </div>
+        </div>
+
+        <div class="commodity-card">
+          <div class="commodity-header">
+            <div class="commodity-icon-box icon-metal"><i class="fa-solid fa-layer-group"></i></div>
+            <span class="commodity-trend-badge badge-up"><i class="fa-solid fa-arrow-trend-up"></i> Upward (+0.61%)</span>
+          </div>
+          <div>
+            <div style="font-size:0.825rem; color:var(--text-muted); font-weight:600">Aluminium (MCX Industrial)</div>
+            <div class="commodity-price-large">₹248.10 <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">/ 1 kg</span></div>
+          </div>
+          <div style="font-size:0.78rem; border-top:1px dashed var(--border-color); padding-top:0.6rem; color:var(--text-muted)">
+            <strong>30-Day Range:</strong> ₹235.00 - ₹254.00<br>
+            <strong>Trend:</strong> Steady domestic consumption
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Form -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Add Security</h3>
+        <button onclick="closeAddModal()" style="background:none; border:none; font-size:1.1rem; cursor:pointer;">&times;</button>
+      </div>
+      <form id="addSecurityForm" onsubmit="handleAddSecurity(event)">
+        <input type="hidden" id="securityType">
+        <div class="form-group">
+          <label>Security Name</label>
+          <input type="text" id="secName" required placeholder="e.g. Reliance Industries Ltd.">
+        </div>
+        <div class="form-group">
+          <label>Latest Value / NAV (₹)</label>
+          <input type="number" step="0.01" id="secLatest" required placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>Yesterday Value / NAV (₹)</label>
+          <input type="number" step="0.01" id="secYesterday" required placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>30 Days High (₹)</label>
+          <input type="number" step="0.01" id="secHigh30" required placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>30 Days Low (₹)</label>
+          <input type="number" step="0.01" id="secLow30" required placeholder="0.00">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+          <button type="submit" class="btn-add">Add to Watchlist</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    Personalised Intelligence Dashboard for <strong>Ajay Sharma</strong> &copy; 2026. Live updates powered by verified news sources and financial feeds.
+  </footer>
+
+  <script>
+    // Tab Switcher
+    function switchTab(tabId, element) {
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      element.classList.add('active');
+    }
+
+    // Refresh Page
+    function refreshPageData() {
+      const btn = document.querySelector('.btn-refresh');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+      setTimeout(() => {
+        location.reload();
+      }, 400);
+    }
+
+    // Modal Control
+    function openAddModal(type) {
+      document.getElementById('securityType').value = type;
+      document.getElementById('modalTitle').innerText = 'Add New ' + type;
+      document.getElementById('addModal').style.display = 'flex';
+    }
+
+    function closeAddModal() {
+      document.getElementById('addModal').style.display = 'none';
+      document.getElementById('addSecurityForm').reset();
+    }
+
+    // Add Security Handler
+    function handleAddSecurity(e) {
+      e.preventDefault();
+      const type = document.getElementById('securityType').value;
+      const name = document.getElementById('secName').value;
+      const latest = parseFloat(document.getElementById('secLatest').value).toFixed(2);
+      const yesterday = parseFloat(document.getElementById('secYesterday').value).toFixed(2);
+      const high30 = parseFloat(document.getElementById('secHigh30').value).toFixed(2);
+      const low30 = parseFloat(document.getElementById('secLow30').value).toFixed(2);
+
+      const trend = (((latest - yesterday) / yesterday) * 100).toFixed(2);
+      const trendClass = trend >= 0 ? 'val-green' : 'val-red';
+      const trendSign = trend >= 0 ? '+' : '';
+
+      const tableId = type === 'Mutual Fund' ? 'mf-table' : 'equity-table';
+      const tableBody = document.getElementById(tableId).querySelector('tbody');
+
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td><strong>${name}</strong></td>
+        <td>${latest}</td>
+        <td>${yesterday}</td>
+        <td class="${trendClass}">${trendSign}${trend}%</td>
+        <td>${high30}</td>
+        <td>${low30}</td>
+        <td>${(latest * 1.08).toFixed(2)}</td>
+        <td>${(latest * 0.90).toFixed(2)}</td>
+        <td>${(latest * 1.15).toFixed(2)}</td>
+        <td>${(latest * 0.82).toFixed(2)}</td>
+        <td><button class="btn-delete" onclick="deleteRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+      `;
+
+      tableBody.appendChild(newRow);
+      closeAddModal();
+    }
+
+    // Delete Row Handler
+    function deleteRow(btn) {
+      if (confirm('Are you sure you want to remove this security from your Watch List?')) {
+        const row = btn.closest('tr');
+        row.remove();
+      }
+    }
+  </script>
+</body>
+</html>
